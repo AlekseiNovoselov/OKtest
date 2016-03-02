@@ -1,4 +1,4 @@
-package com.lexaloris.recyclevideoview;
+package com.lexaloris.recyclevideoview.views;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -8,45 +8,40 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
+import com.lexaloris.recyclevideoview.interfaces.IVideoPreparedListener;
+import com.lexaloris.recyclevideoview.models.Video;
+
 import java.io.IOException;
 
 public class VideoPlayer extends TextureView implements TextureView.SurfaceTextureListener {
 
     private static String TAG = "VideoPlayer";
 
-    /**This flag determines that if current VideoPlayer object is first item of the list if it is first item of list*/
-    boolean isFirstListItem;
-
-    boolean isLoaded;
+    private boolean isLoaded;
     boolean isMpPrepared;
 
     IVideoPreparedListener iVideoPreparedListener;
 
     Video video;
     String url;
-    MediaPlayer mp;
+    public MediaPlayer mp;
     Surface surface;
-    SurfaceTexture s;
 
     public VideoPlayer(Context context) {
         super(context);
     }
 
-    public VideoPlayer(Context context, AttributeSet attrs)
-    {
+    public VideoPlayer(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     public void loadVideo(String localPath, Video video) {
-
         this.url = localPath;
         this.video = video;
-        isLoaded = true;
-
         if (this.isAvailable()) {
             prepareVideo(getSurfaceTexture());
         }
-
+        isLoaded = true;
         setSurfaceTextureListener(this);
     }
 
@@ -64,8 +59,7 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
 
-        if(mp!=null)
-        {
+        if(mp!=null) {
             mp.stop();
             mp.reset();
             mp.release();
@@ -77,11 +71,11 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
 
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
     }
 
-    public void prepareVideo(SurfaceTexture t)
-    {
 
+    public void prepareVideo(SurfaceTexture t) {
         this.surface = new Surface(t);
         mp = new MediaPlayer();
         mp.setSurface(this.surface);
@@ -99,28 +93,9 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
 
 
             });
-        } catch (IllegalArgumentException e1) {
+        } catch (IllegalArgumentException | SecurityException |
+                IllegalStateException | IOException e1) {
             e1.printStackTrace();
-        } catch (SecurityException e1) {
-            e1.printStackTrace();
-        } catch (IllegalStateException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        try {
-
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-        try {
-
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
         }
 
     }
@@ -135,11 +110,9 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
         super.onVisibilityChanged(changedView, visibility);
     }
 
-    public boolean startPlay()
-    {
+    public boolean startPlay() {
         if(mp!=null)
-            if(!mp.isPlaying())
-            {
+            if(!mp.isPlaying()) {
                 mp.start();
                 return true;
             }
@@ -147,31 +120,30 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
         return false;
     }
 
-    public void pausePlay()
-    {
+    public void pausePlay() {
         if(mp!=null)
             mp.pause();
     }
 
-    public void stopPlay()
-    {
+    public void stopPlay() {
         if(mp!=null)
             mp.stop();
     }
 
-    public void changePlayState()
-    {
-        if(mp!=null)
-        {
+    public void changePlayState() {
+        if(mp!=null) {
             if(mp.isPlaying())
                 mp.pause();
             else
                 mp.start();
         }
-
     }
 
     public void setOnVideoPreparedListener(IVideoPreparedListener iVideoPreparedListener) {
         this.iVideoPreparedListener = iVideoPreparedListener;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
     }
 }
