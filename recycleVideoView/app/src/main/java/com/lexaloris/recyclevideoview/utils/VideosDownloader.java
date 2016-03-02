@@ -40,7 +40,7 @@ public class VideosDownloader {
                 {
                     final Video video = videosList.get(i);
                     String url = video.getUrl();
-                    String isVideoDownloaded = utils.readPreferences(context, video.getUrl(), "false");
+                    String isVideoDownloaded = utils.readPreferences(context, video.getUrl());
                     boolean isVideoAvailable = Boolean.valueOf(isVideoDownloaded);
                     if(!isVideoAvailable)
                     {
@@ -50,7 +50,7 @@ public class VideosDownloader {
                             @Override
                             public void run() {
                                 Utils utils = new Utils();
-                                utils.savePreferences(context, video.getUrl(), "true");
+                                utils.savePreferences(context, video.getUrl());
                                 iVideoDownloadListener.onVideoDownloaded(video);
                             }
                         });
@@ -67,7 +67,8 @@ public class VideosDownloader {
         File file = null;
         try
         {
-            String filename = urlStr.substring(urlStr.lastIndexOf("/")+1);
+            Utils utils = new Utils();
+            String filename = utils.getEntireFileName(urlStr);
             file = new File(context.getFilesDir(), filename);
             url = new URL(urlStr);
             long startTime = System.currentTimeMillis();

@@ -32,7 +32,6 @@ public class VideoPlayerController {
 
     public void loadVideo(Video video, VideoPlayer videoPlayer) {
         videos.put(video.getId(), videoPlayer);
-        handlePlayBack(video);
     }
 
     public void handlePlayBack(Video video)
@@ -55,7 +54,8 @@ public class VideoPlayerController {
             if(videos.containsKey(video.getId()))
             {
                 final VideoPlayer videoPlayer2 = videos.get(video.getId());
-                String filename = video.getUrl().substring(video.getUrl().lastIndexOf("/")+1);
+                Utils utils = new Utils();
+                String filename = utils.getEntireFileName(video.getUrl());
                 String localPath = new File(context.getFilesDir(), filename).getAbsolutePath();
                 if(!videoPlayer2.isLoaded()) {
                     videoPlayer2.loadVideo(localPath, video);
@@ -85,7 +85,7 @@ public class VideoPlayerController {
 
     private boolean isVideoDownloaded(Video video) {
         Utils utils = new Utils();
-        String isVideoDownloaded = utils.readPreferences(context, video.getUrl(), "false");
+        String isVideoDownloaded = utils.readPreferences(context, video.getUrl());
         return Boolean.valueOf(isVideoDownloaded);
     }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -47,6 +48,7 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
 
     @Override
     public void onSurfaceTextureAvailable(final SurfaceTexture surface, int width, int height) {
+        Log.d(TAG, "onSurfaceTextureAvailable");
         isMpPrepared = false;
         prepareVideo(surface);
     }
@@ -76,6 +78,7 @@ public class VideoPlayer extends TextureView implements TextureView.SurfaceTextu
 
 
     public void prepareVideo(SurfaceTexture t) {
+        Log.d(TAG, "prepareVideo");
         this.surface = new Surface(t);
         mp = new MediaPlayer();
         mp.setSurface(this.surface);

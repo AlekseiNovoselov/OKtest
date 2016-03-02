@@ -14,6 +14,7 @@ import com.lexaloris.recyclevideoview.utils.NetworkHelper;
 import com.lexaloris.recyclevideoview.utils.Utils;
 import com.lexaloris.recyclevideoview.utils.VideosDownloader;
 import com.lexaloris.recyclevideoview.utils.XmlParser;
+import com.lexaloris.recyclevideoview.views.IVideoVisibleListener;
 import com.lexaloris.recyclevideoview.views.VideosAdapter;
 
 import org.xml.sax.SAXException;
@@ -73,24 +74,7 @@ public class MainActivity extends AppCompatActivity implements IVideoDownloadLis
                     super.onScrollStateChanged(recyclerView, newState);
 
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-
-                        LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                        int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
-                        int findFirstCompletelyVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
-                        int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
-                        Utils utils = new Utils();
-                        ArrayList<Integer> visibleElements = utils.calculateVisibleElements(recyclerView, firstVisiblePosition, lastVisiblePosition);
-                        if (urls != null && urls.size() > 0)
-                        {
-                            if (findFirstCompletelyVisibleItemPosition >= 0) {
-                                mAdapter.getVideoPlayerController().setCurrentPositionOfItemToPlay(visibleElements);
-                                mAdapter.getVideoPlayerController().handlePlayBackVideos(urls);
-                            }
-                            else {
-                                mAdapter.getVideoPlayerController().setCurrentPositionOfItemToPlay(visibleElements);
-                                mAdapter.getVideoPlayerController().handlePlayBackVideos(urls);
-                            }
-                        }
+                        refreshVisibility();
                     }
                 }
             });
@@ -98,11 +82,31 @@ public class MainActivity extends AppCompatActivity implements IVideoDownloadLis
 
         else
             Toast.makeText(context, "No internet available", Toast.LENGTH_SHORT).show();
+
+        mAdapter.setOnVideoVisibleListener(new IVideoVisibleListener() {
+            @Override
+            public void calculateVideoVisible() {
+                refreshVisibility();
+            }
+        });
+    }
+
+    private void refreshVisibility() {
+        LinearLayoutManager layoutManager = ((LinearLayoutManager) mRecyclerView.getLayoutManager());
+        int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+        int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
+        Utils utils = new Utils();
+        ArrayList<Integer> visibleElements = utils.calculateVisibleElements(mRecyclerView, firstVisiblePosition, lastVisiblePosition);
+
+        if (urls != null && urls.size() > 0) {
+            mAdapter.getVideoPlayerController().setCurrentPositionOfItemToPlay(visibleElements);
+            mAdapter.getVideoPlayerController().handlePlayBackVideos(urls);
+        }
     }
 
     @Override
     public void onVideoDownloaded(Video video) {
-        mAdapter.getVideoPlayerController().handlePlayBack(video);
+        refreshVisibility();
     }
 
     private void getVideoUrls() throws ParserConfigurationException, IOException, SAXException {

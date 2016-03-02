@@ -22,9 +22,14 @@ import java.util.ArrayList;
  */
 public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder> {
 
+    private static final String TAG = "VideosAdapter";
     Context context;
     private ArrayList<Video> urls;
     private VideoPlayerController videoPlayerController;
+    IVideoVisibleListener iVideoVisibleListener;
+
+    final int ScreenWidthToTextSize = 20;
+    final int MarginTopToScreenWidth = 5;
 
     /**
      * Реализация класса ViewHolder, хранящего ссылки на виджеты.
@@ -71,8 +76,8 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
 
         Utils utils = new Utils();
         int screenWidthPixels = utils.convertDpToPixel(screenWidthDp, context);
-        // считаем формат 3*4
-        int screenHeightPixels = 3*screenWidthPixels/4;
+        // считаем формат видео 3*4
+        int screenHeightPixels = (screenWidthPixels*3/4);
         RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, screenHeightPixels);
         viewHolder.videoPlayerLayout.setLayoutParams(rel_btn);
@@ -91,13 +96,21 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
         final VideoPlayer videoPlayer = new VideoPlayer(context);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        params.setMargins(0, 50, 0, 0);
+
+        Configuration configuration = context.getResources().getConfiguration();
+        int screenWidthDp = configuration.screenWidthDp;
+        int marginTop = screenWidthDp/(ScreenWidthToTextSize/MarginTopToScreenWidth);
+
+        params.setMargins(0, marginTop, 0, 0);
         videoPlayer.setLayoutParams(params);
 
-        holder.videoPlayerLayout.addView(videoPlayer);
         holder.headerText.setText(video.getHeader());
+        holder.headerText.setTextSize(screenWidthDp / ScreenWidthToTextSize);
         holder.footerText.setText(video.getFooter());
+        holder.footerText.setTextSize(screenWidthDp/ ScreenWidthToTextSize);
+        holder.videoPlayerLayout.addView(videoPlayer);
 
+        iVideoVisibleListener.calculateVideoVisible();
         videoPlayerController.loadVideo(video, videoPlayer);
         videoPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,12 +124,15 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.ViewHolder
     public void onViewRecycled(ViewHolder holder) {
         super.onViewRecycled(holder);
         holder.videoPlayerLayout.removeAllViews();
-
     }
 
     @Override
     public int getItemCount() {
         return urls.size();
+    }
+
+    public void setOnVideoVisibleListener(IVideoVisibleListener iVideoPreparedListener) {
+        this.iVideoVisibleListener = iVideoPreparedListener;
     }
 
 }
